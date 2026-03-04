@@ -1,18 +1,47 @@
 package com.company.employeemgmt;
+//Git practice: verifying push workflow
 
 import org.springframework.stereotype.Service;
-import java.util.ArrayList;
+
 import java.util.List;
 
 @Service
 public class EmployeeService {
-    private final List<Employee> employees = new ArrayList<>();
 
-    public void addEmployee(Employee emp) { employees.add(emp); }
+    private final EmployeeRepository repo;
 
-    public List<Employee> getEmployees() { return employees; }
+    public EmployeeService(EmployeeRepository repo) {
+        this.repo = repo;
+    }
 
+    // CREATE
+    public Employee addEmployee(Employee emp) {
+        return repo.save(emp);
+    }
+
+    // READ ALL
+    public List<Employee> getEmployees() {
+        return repo.findAll();
+    }
+
+    // READ BY ID
     public Employee getEmployeeById(int id) {
-        return employees.stream().filter(e -> e.getId() == id).findFirst().orElse(null);
+        return repo.findById(id).orElse(null);
+    }
+
+    // DELETE
+    public boolean deleteEmployeeById(int id) {
+        if (!repo.existsById(id)) return false;
+        repo.deleteById(id);
+        return true;
+    }
+
+    // UPDATE NAME
+    public boolean updateEmployee(int id, String name) {
+        return repo.findById(id).map(emp -> {
+            emp.setName(name);
+            repo.save(emp);
+            return true;
+        }).orElse(false);
     }
 }
