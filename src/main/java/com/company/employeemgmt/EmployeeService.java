@@ -1,8 +1,6 @@
 package com.company.employeemgmt;
 
-
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 
 @Service
@@ -14,32 +12,34 @@ public class EmployeeService {
         this.repo = repo;
     }
 
-    // CREATE
     public Employee addEmployee(Employee emp) {
         return repo.save(emp);
     }
 
-    // READ ALL
     public List<Employee> getEmployees() {
         return repo.findAll();
     }
 
-    // READ BY ID
-    public Employee getEmployeeById(int id) {
+    public Employee getEmployeeById(Long id) {
         return repo.findById(id).orElse(null);
     }
 
-    // DELETE
-    public boolean deleteEmployeeById(int id) {
-        if (!repo.existsById(id)) return false;
+    public boolean deleteEmployeeById(Long id) {
+        if (!repo.existsById(id)) {
+            return false;
+        }
         repo.deleteById(id);
         return true;
     }
 
-    // UPDATE NAME
-    public boolean updateEmployee(int id, String name) {
+    public boolean updateEmployee(Long id, String name, String department) {
         return repo.findById(id).map(emp -> {
-            emp.setName(name);
+            if (name != null && !name.trim().isEmpty()) {
+                emp.setName(name);
+            }
+            if (department != null && !department.trim().isEmpty()) {
+                emp.setDepartment(department);
+            }
             repo.save(emp);
             return true;
         }).orElse(false);

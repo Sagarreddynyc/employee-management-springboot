@@ -36,14 +36,12 @@ public class EmployeeController {
     }
     
     @PostMapping
-    public ResponseEntity<?> createEmployee(@RequestBody EmployeeCreateRequest req) {
+    public ResponseEntity<Employee> createEmployee(@RequestBody EmployeeCreateRequest req) {
+        Employee emp = new Employee();
+        emp.setName(req.getName());
+        emp.setDepartment(req.getDepartment());
 
-        if (req.getName() == null || req.getName().trim().isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Employee name cannot be empty");
-        }
-
-        Employee saved = service.addEmployee(new Employee(req.getName()));
+        Employee saved = service.addEmployee(emp);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
@@ -56,12 +54,12 @@ public class EmployeeController {
 
     // Search employee by ID
     @GetMapping("/{id}")
-    public Employee getEmployee(@PathVariable int id) {
+    public Employee getEmployee(@PathVariable Long id) {
         return service.getEmployeeById(id);
     }
     
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteEmployee(@PathVariable int id) {
+    public ResponseEntity<String> deleteEmployee(@PathVariable Long id) {
 
         boolean deleted = service.deleteEmployeeById(id);
 
@@ -76,20 +74,17 @@ public class EmployeeController {
   
     @PutMapping("/{id}")
     public ResponseEntity<String> updateEmployee(
-            @PathVariable int id,
+            @PathVariable Long id,
             @RequestBody EmployeeUpdateRequest req) {
 
-        if (req.getName() == null || req.getName().trim().isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Employee name cannot be empty");
+        boolean updated = service.updateEmployee(id, req.getName(), req.getDepartment());
+
+        if (updated) {
+            return ResponseEntity.ok("Employee updated successfully");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Employee not found");
         }
-
-        boolean updated = service.updateEmployee(id, req.getName());
-        if (updated) return ResponseEntity.ok("Employee updated successfully");
-
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Employee not found");
     }
-
 
 
 }
